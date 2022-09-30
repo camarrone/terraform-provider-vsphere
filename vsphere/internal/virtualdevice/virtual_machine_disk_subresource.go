@@ -578,15 +578,14 @@ func DiskDiffOperation(d *schema.ResourceDiff, c *govmomi.Client) error {
 		pathKnown := d.NewValueKnown(curDiskPath)
 		if nm["attach"].(bool) {
 			diskPath := getDiskPath(nm)
-			diskDatastoreID := getDiskDatastoreID(nm)
 			if pathKnown {
 				if diskPath == "" {
 					return fmt.Errorf("disk.%d: path or name cannot be empty when using attach", ni)
 				}
-				if _, ok := attachments[diskDatastoreID+":"+diskPath]; ok {
-					return fmt.Errorf("disk: multiple entries trying to attach external disk %s:%s", diskDatastoreID, diskPath)
+				if _, ok := attachments[diskPath]; ok {
+					return fmt.Errorf("disk: multiple entries trying to attach external disk %s", diskPath)
 				}
-				attachments[diskDatastoreID+":"+diskPath] = struct{}{}
+				attachments[diskPath] = struct{}{}
 			} else {
 				log.Printf("[DEBUG] Disk path for disk %d is not known yet.", ni)
 			}
@@ -2099,17 +2098,6 @@ func getDiskPath(data map[string]interface{}) string {
 	}
 
 	return diskPath
-}
-
-// getDiskDatastoreID is a helper method that returns the datastore_id for a disk
-// or an empty string if one is not set.
-func getDiskDatastoreID(data map[string]interface{}) string {
-	var diskDatastoreID string
-	if v, ok := data["datastore_id"]; ok && v != nil {
-		diskDatastoreID = v.(string)
-	}
-
-	return diskDatastoreID
 }
 
 // findVirtualDisk locates a virtual disk by it UUID, or by its device address
