@@ -11,11 +11,8 @@ builds:
     # usage by users in CI/CD systems like Terraform Cloud where
     # they are unable to install libraries.
     - CGO_ENABLED=0
-  mod_timestamp: '{{ .CommitTimestamp }}'
   flags:
     - -trimpath
-  ldflags:
-    - '-s -w -X main.version={{.Version}} -X main.commit={{.Commit}}'
     goos:
       - darwin
       - freebsd
@@ -37,6 +34,9 @@ builds:
       - goarch: arm64
         goos: openbsd
   binary: '{{ .ProjectName }}_v{{ .Version }}'
+  ldflags:
+      - -s -w -X version.ProviderVersion={{.Version}} -X main.commit={{.Commit}}
+  mod_timestamp: '{{ .CommitTimestamp }}'
 archives:
 - format: zip
   name_template: '{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}'
